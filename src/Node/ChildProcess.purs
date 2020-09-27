@@ -208,6 +208,20 @@ spawn cmd args = spawnImpl cmd args <<< convertOpts
 
 foreign import spawnImpl :: forall opts eff. String -> Array String -> { | opts } -> Eff (cp :: CHILD_PROCESS | eff) ChildProcess
 
+spawnSync :: forall eff. String -> Array String -> SpawnOptions -> Eff (cp :: CHILD_PROCESS | eff) ChildProcess
+spawnSync cmd args = spawnSyncImpl cmd args <<< convertOpts
+  where
+  convertOpts opts =
+    { cwd: fromMaybe undefined opts.cwd
+    , stdio: toActualStdIOOptions opts.stdio
+    , env: toNullable opts.env
+    , detached: opts.detached
+    , uid: fromMaybe undefined opts.uid
+    , gid: fromMaybe undefined opts.gid
+    }
+
+foreign import spawnSyncImpl :: forall opts eff. String -> Array String -> { | opts } -> Eff (cp :: CHILD_PROCESS | eff) ChildProcess
+
 -- There's gotta be a better way.
 foreign import undefined :: forall a. a
 
